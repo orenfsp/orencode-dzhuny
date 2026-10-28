@@ -1,0 +1,3 @@
+Base local commit: d0318b762dd421221feaf556ebe457802e47e118
+Archive fixes: root redirect, registration checkbox layout, asset cache version.
+Archive differs from base commit. GitHub push: NOT COMPLETED.

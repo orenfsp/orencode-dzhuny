@@ -1,0 +1,42 @@
+services:
+  app:
+    build: .
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      PublicUrl: https://${DOMAIN:?Set DOMAIN}
+      Demo__Enabled: "false"
+      Bootstrap__Email: ${ADMIN_EMAIL:?Set ADMIN_EMAIL}
+      Bootstrap__Password: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD}
+      ReverseProxy__Address: 172.30.10.2
+      Email__Mode: smtp
+      Email__Host: ${SMTP_HOST:?Set SMTP_HOST}
+      Email__Port: ${SMTP_PORT:-587}
+      Email__EnableSsl: "true"
+      Email__User: ${SMTP_USER:?Set SMTP_USER}
+      Email__Password: ${SMTP_PASSWORD:?Set SMTP_PASSWORD}
+      Email__From: ${SMTP_FROM:?Set SMTP_FROM}
+    volumes: ["orencode-production:/data"]
+    networks:
+      private:
+        ipv4_address: 172.30.10.3
+    restart: unless-stopped
+  proxy:
+    image: caddy:2-alpine
+    environment:
+      DOMAIN: ${DOMAIN:?Set DOMAIN}
+    ports: ["80:80", "443:443"]
+    volumes: ["./Caddyfile:/etc/caddy/Caddyfile:ro", "caddy-data:/data", "caddy-config:/config"]
+    networks:
+      private:
+        ipv4_address: 172.30.10.2
+    depends_on: [app]
+    restart: unless-stopped
+networks:
+  private:
+    ipam:
+      config:
+        - subnet: 172.30.10.0/24
+volumes:
+  orencode-production:
+  caddy-data:
+  caddy-config:
